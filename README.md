@@ -1,2 +1,1 @@
-# acs-rs
-ACS (TR-069) Rust bindings
+# ACS (TR-069) API Rust bindings
