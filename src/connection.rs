@@ -34,7 +34,7 @@ impl AcsConnection {
         // Check if the request was successful
         if response.status().is_success() {
             // Parse the JSON response
-            let s = response.json::<String>()?.clone();
+            let s = response.text()?.clone();
             let val: Vec<AcsDevice> = serde_json::from_str(&s)?;
             return Ok(val);
         } else {
