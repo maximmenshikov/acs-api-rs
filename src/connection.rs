@@ -1,4 +1,7 @@
+use crate::request::get_parameter_values::*;
+use crate::request::refresh_object::*;
 use crate::request::set_parameter_values::*;
+use crate::request::simple_command::*;
 use reqwest::blocking::Client;
 use crate::device::*;
 use crate::parameter_value::*;
@@ -32,18 +35,98 @@ impl AcsConnection {
         }
     }
 
-    pub fn enqueue_task(&self, _device_id: String, parameter_values: Vec<ParameterValue>) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn set_parameter_values(&self, device_id: String, parameter_values: Vec<ParameterValue>) -> Result<(), Box<dyn std::error::Error>> {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices";
+        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
 
         let req = SetParameterValues::new(parameter_values.clone());
-        // Send a GET request
+        // Send a POST request
         let response = client
             .post(&url)
-            .json(&req)  // Automatically serializes the struct to JSON
-        .send()?;
+            .json(&req)
+            .send()?;
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!("Response indicates failure: {}", response.status())));
+        }
+    }
+
+    pub fn get_parameter_values(&self, device_id: String, parameter_names: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
+        let client = Client::new();
+
+        // Define the URL
+        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+
+        let req = GetParameterValues::new(parameter_names.clone());
+        // Send a POST request
+        let response = client
+            .post(&url)
+            .json(&req)
+            .send()?;
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!("Response indicates failure: {}", response.status())));
+        }
+    }
+
+    pub fn refresh_object(&self, device_id: String, object: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let client = Client::new();
+
+        // Define the URL
+        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+
+        let req = RefreshObject::new(object);
+        // Send a POST request
+        let response = client
+            .post(&url)
+            .json(&req)
+            .send()?;
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!("Response indicates failure: {}", response.status())));
+        }
+    }
+
+    pub fn reboot(&self, device_id: String) -> Result<(), Box<dyn std::error::Error>> {
+        let client = Client::new();
+
+        // Define the URL
+        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+
+        let req = SimpleCommand::new("reboot");
+        // Send a POST request
+        let response = client
+            .post(&url)
+            .json(&req)
+            .send()?;
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!("Response indicates failure: {}", response.status())));
+        }
+    }
+
+    pub fn factory_reset(&self, device_id: String) -> Result<(), Box<dyn std::error::Error>> {
+        let client = Client::new();
+
+        // Define the URL
+        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+
+        let req = SimpleCommand::new("factoryReset");
+        // Send a POST request
+        let response = client
+            .post(&url)
+            .json(&req)
+            .send()?;
 
         if response.status().is_success() {
             return Ok(());
