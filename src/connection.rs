@@ -1,3 +1,4 @@
+use crate::acs_type::AcsType;
 use crate::request::get_parameter_values::*;
 use crate::request::refresh_object::*;
 use crate::request::set_parameter_values::*;
@@ -8,14 +9,19 @@ use crate::parameter_value::*;
 
 pub struct AcsConnection {
     pub addr: String,
+    pub acs_type: AcsType,
 }
 
 impl AcsConnection {
-    pub fn new(addr: String) -> Self {
-        return Self { addr: addr };
+    pub fn new(acs_type: AcsType, addr: String) -> Self {
+        return Self { acs_type: acs_type, addr: addr };
     }
 
     pub fn list_devices(self: &Self) -> Result<Vec<AcsDevice>, Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
         let client = Client::new();
 
         // Define the URL
@@ -36,6 +42,10 @@ impl AcsConnection {
     }
 
     pub fn set_parameter_values(&self, device_id: String, parameter_values: Vec<ParameterValue>) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
         let client = Client::new();
 
         // Define the URL
@@ -56,6 +66,10 @@ impl AcsConnection {
     }
 
     pub fn get_parameter_values(&self, device_id: String, parameter_names: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
         let client = Client::new();
 
         // Define the URL
@@ -76,6 +90,10 @@ impl AcsConnection {
     }
 
     pub fn refresh_object(&self, device_id: String, object: &str) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
         let client = Client::new();
 
         // Define the URL
@@ -96,6 +114,10 @@ impl AcsConnection {
     }
 
     pub fn reboot(&self, device_id: String) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
         let client = Client::new();
 
         // Define the URL
@@ -116,6 +138,10 @@ impl AcsConnection {
     }
 
     pub fn factory_reset(&self, device_id: String) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
         let client = Client::new();
 
         // Define the URL
