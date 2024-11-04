@@ -1,11 +1,12 @@
-use crate::acs_type::AcsType;
+use crate::acs_type::*;
+use crate::device::*;
+use crate::parameter_value::*;
+use crate::request::add_delete_object::*;
 use crate::request::get_parameter_values::*;
 use crate::request::refresh_object::*;
 use crate::request::set_parameter_values::*;
 use crate::request::simple_command::*;
 use reqwest::blocking::Client;
-use crate::device::*;
-use crate::parameter_value::*;
 
 pub struct AcsConnection {
     pub addr: String,
@@ -148,6 +149,30 @@ impl AcsConnection {
         let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
 
         let req = SimpleCommand::new("factoryReset");
+        // Send a POST request
+        let response = client
+            .post(&url)
+            .json(&req)
+            .send()?;
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!("Response indicates failure: {}", response.status())));
+        }
+    }
+
+    pub fn add_del_object(&self, device_id: String, add: bool, object_name: String) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
+        let client = Client::new();
+
+        // Define the URL
+        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+
+        let req = AddDeleteObject::new(add, &object_name);
         // Send a POST request
         let response = client
             .post(&url)
