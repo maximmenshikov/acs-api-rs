@@ -185,4 +185,51 @@ impl AcsConnection {
             return Err(Box::from(format!("Response indicates failure: {}", response.status())));
         }
     }
+
+     pub fn del_device(&self, device_id: String) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
+        let client = Client::new();
+
+        // Define the URL
+        let url = self.addr.clone() + "/devices/" + &device_id;
+
+        // Send a DELETE request
+        let response = client
+            .delete(&url)
+            .send()?;
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!("Response indicates failure: {}", response.status())));
+        }
+    }
+
+
+    pub fn add_del_tag(&self, device_id: String, add: bool, tag: String) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
+        let client = Client::new();
+
+        // Define the URL
+        let url = self.addr.clone() + "/devices/" + &device_id + "/tags/" + &tag;
+
+        // Send a POST/DELETE request
+        let response = if add {
+            client.post(&url).send()?
+        } else {
+            client.delete(&url).send()?
+        };
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!("Response indicates failure: {}", response.status())));
+        }
+    }
 }
