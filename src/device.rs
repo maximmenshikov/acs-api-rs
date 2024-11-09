@@ -2,25 +2,29 @@ use serde::{Deserialize, Serialize};
 use crate::util::accessor::*;
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
+#[repr(C)]
+pub struct AcsDeviceId {
+    #[serde(default = "unset_str", rename = "_Manufacturer")]
+    pub manufacturer: String,
+    #[serde(default = "unset_str", rename = "_OUI")]
+    pub oui: String,
+    #[serde(default = "unset_str", rename = "_ProductClass")]
+    pub product_class: String,
+    #[serde(default = "unset_str", rename = "_SerialNumber")]
+    pub serial_number: String,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[repr(C)]
 pub struct AcsDevice {
-    #[serde(default = "unset_str")]
+    #[serde(default = "unset_str", rename = "_id")]
     pub id: String,
-    #[serde(default = "unset_str")]
-    pub serial_number: String,
-    #[serde(default = "unset_str")]
-    pub manufacturer: String,
-    #[serde(default = "unset_str")]
-    pub model: String,
-    #[serde(default = "unset_str")]
-    pub firmware_version: String,
-    #[serde(default = "unset_str")]
-    pub last_online: String,
-    #[serde(default = "unset_str")]
-    pub created_at: String,
-    #[serde(default = "unset_str")]
-    pub updated_at: String,
-    #[serde(default = "unset_str")]
-    pub status: String,
+    #[serde(default = "unset_acs_device_id", rename = "_deviceId")]
+    pub device_id: AcsDeviceId,
+
+    #[serde(default = "unset_str", rename = "_lastInform")]
+    pub last_inform: String,
+
+    #[serde(default = "unset_str", rename = "_registered")]
+    pub registered: String,
 }
