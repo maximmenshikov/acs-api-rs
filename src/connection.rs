@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::acs_type::*;
 use crate::data_node::*;
 use crate::device::*;
@@ -135,8 +136,14 @@ impl AcsConnection {
                 let root_device = &root_device_array[0].clone();
                 if let Some(root_device_obj) = root_device.as_object() {
                     if root_device_obj.contains_key("Device") {
-                        let root_node = &root_device_obj["Device"].clone();
-                        return Ok(self.parse_device_tree(&root_node));
+                        let device_node = &root_device_obj["Device"].clone();
+                        let device_node = self.parse_device_tree(&device_node);
+                        let mut root_node = DataNode { value: "".to_string(),
+                            value_type: "".to_string(),
+                            subnodes: HashMap::new()
+                        };
+                        root_node.subnodes.insert("Device".to_string(), device_node);
+                        return Ok(root_node);
                     }
                 }
             }
