@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use crate::acs_type::*;
 use crate::data_node::*;
 use crate::device::*;
@@ -9,6 +8,7 @@ use crate::request::set_parameter_values::*;
 use crate::request::simple_command::*;
 use reqwest::blocking::Client;
 use serde_json::Value;
+use std::collections::HashMap;
 
 pub struct AcsConnection {
     pub addr: String,
@@ -138,9 +138,10 @@ impl AcsConnection {
                     if root_device_obj.contains_key("Device") {
                         let device_node = &root_device_obj["Device"].clone();
                         let device_node = self.parse_device_tree(&device_node);
-                        let mut root_node = DataNode { value: "".to_string(),
+                        let mut root_node = DataNode {
+                            value: "".to_string(),
                             value_type: "".to_string(),
-                            subnodes: HashMap::new()
+                            subnodes: HashMap::new(),
                         };
                         root_node.subnodes.insert("Device".to_string(), device_node);
                         return Ok(root_node);
