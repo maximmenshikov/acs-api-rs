@@ -1,12 +1,13 @@
+use serde_json::Value;
 use crate::acs_type::*;
 use crate::device::*;
 use crate::parameter_value::*;
 use crate::request::add_delete_object::*;
-use crate::request::get_parameter_values::*;
 use crate::request::refresh_object::*;
 use crate::request::set_parameter_values::*;
 use crate::request::simple_command::*;
 use reqwest::blocking::Client;
+use crate::data_node::*;
 
 pub struct AcsConnection {
     pub addr: String,
@@ -66,7 +67,30 @@ impl AcsConnection {
         }
     }
 
-    pub fn get_parameter_values(&self, device_id: String, parameter_names: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
+    fn parse_device_tree(&self, json: &Value) -> DataNode {
+        let mut root = DataNode::new();
+
+        if let Some(obj) = json.as_object() {
+            for (key, value) in obj {
+                let mut child_node = DataNode::new();
+
+                if let Some(sub_obj) = value.as_object() {
+                    if sub_obj.contains_key("_value") && sub_obj.contains_key("_type") {
+                        child_node.value = sub_obj["_value"].as_str().map(String::from).unwrap_or("".to_string());
+                        child_node.value_type = sub_obj["_type"].as_str().map(String::from).unwrap_or("".to_string());
+                    } else {
+                        child_node = self.parse_device_tree(value);
+                    }
+                }
+
+                root.subnodes.insert(key.clone(), child_node);
+            }
+        }
+
+        root
+    }
+
+    pub fn get_parameter_values(&self, device_id: String, parameter_names: Vec<String>) -> Result<DataNode, Box<dyn std::error::Error>> {
         if !matches!(self.acs_type, AcsType::GenieAcs) {
             return Err(Box::from("Unknown ACS type"));
         }
@@ -74,17 +98,26 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+        let url = self.addr.clone() + "/devices?query=%7B%22_id%22%3A%22" + &device_id + "%22%7D&projection=" + &parameter_names.join(",");
 
-        let req = GetParameterValues::new(parameter_names.clone());
-        // Send a POST request
+        eprintln!("URL: {}", url);
+
+        // Send a GET request
         let response = client
-            .post(&url)
-            .json(&req)
+            .get(&url)
             .send()?;
 
         if response.status().is_success() {
-            return Ok(());
+            let s = response.text()?.clone();
+            let json: Value = serde_json::from_str(&s)?;
+            let root_device_array = json.as_array().unwrap();
+            let root_device = &root_device_array[0].clone();
+            if let Some(root_device_obj) = root_device.as_object() {
+                let root_node = &root_device_obj["Device"].clone();
+                return Ok(self.parse_device_tree(&root_node));
+            }
+
+            return Err(Box::from("Bad response"));
         } else {
             return Err(Box::from(format!("Response indicates failure: {}", response.status())));
         }
