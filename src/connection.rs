@@ -131,10 +131,14 @@ impl AcsConnection {
             let s = response.text()?.clone();
             let json: Value = serde_json::from_str(&s)?;
             let root_device_array = json.as_array().unwrap();
-            let root_device = &root_device_array[0].clone();
-            if let Some(root_device_obj) = root_device.as_object() {
-                let root_node = &root_device_obj["Device"].clone();
-                return Ok(self.parse_device_tree(&root_node));
+            if root_device_array.len() > 0 {
+                let root_device = &root_device_array[0].clone();
+                if let Some(root_device_obj) = root_device.as_object() {
+                    if root_device_obj.contains_key("Device") {
+                        let root_node = &root_device_obj["Device"].clone();
+                        return Ok(self.parse_device_tree(&root_node));
+                    }
+                }
             }
 
             return Err(Box::from("Bad response"));
