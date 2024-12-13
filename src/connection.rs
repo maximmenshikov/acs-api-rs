@@ -100,8 +100,6 @@ impl AcsConnection {
         // Define the URL
         let url = self.addr.clone() + "/devices?query=%7B%22_id%22%3A%22" + &device_id + "%22%7D&projection=" + &parameter_names.join(",");
 
-        eprintln!("URL: {}", url);
-
         // Send a GET request
         let response = client
             .get(&url)
