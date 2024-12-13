@@ -1,3 +1,3 @@
 pub enum AcsType {
-	GenieAcs,
+    GenieAcs,
 }

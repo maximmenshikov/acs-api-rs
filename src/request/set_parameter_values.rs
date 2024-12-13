@@ -1,6 +1,6 @@
 use crate::parameter_value::ParameterValue;
-use serde::{Deserialize, Serialize};
 use crate::util::accessor::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[repr(C)]

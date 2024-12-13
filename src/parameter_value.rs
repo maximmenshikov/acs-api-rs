@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::util::accessor::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[repr(C)]
@@ -17,11 +17,15 @@ impl ParameterValue {
         return ParameterValue {
             parameter: parameter.to_string(),
             value: value.to_string(),
-            value_type: value_type.to_string()
+            value_type: value_type.to_string(),
         };
     }
 
     pub fn to_value(&self) -> Vec<String> {
-        return vec! { self.parameter.clone(), self.value.clone(), self.value_type.clone() };
+        return vec![
+            self.parameter.clone(),
+            self.value.clone(),
+            self.value_type.clone(),
+        ];
     }
 }

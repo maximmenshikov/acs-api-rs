@@ -18,7 +18,10 @@ pub fn unset_vec_parameter_value() -> Vec<ParameterValue> {
 }
 
 pub fn unset_acs_device_id() -> AcsDeviceId {
-    return AcsDeviceId { manufacturer: "".to_string(), oui: "".to_string(), product_class: "".to_string(),
-        serial_number: "".to_string()
+    return AcsDeviceId {
+        manufacturer: "".to_string(),
+        oui: "".to_string(),
+        product_class: "".to_string(),
+        serial_number: "".to_string(),
     };
 }
