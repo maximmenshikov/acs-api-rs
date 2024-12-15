@@ -66,6 +66,7 @@ impl AcsConnection {
 
         let req = SetParameterValues::new(parameter_values.clone());
         // Send a POST request
+        eprintln!("Request: {}", serde_json::to_string(&req).unwrap());
         let response = client.post(&url).json(&req).send()?;
 
         if response.status().is_success() {
@@ -97,6 +98,11 @@ impl AcsConnection {
                             .as_str()
                             .map(String::from)
                             .unwrap_or("".to_string());
+                        if sub_obj.contains_key("_writable") {
+                            child_node.writable = sub_obj.get("_writable")
+                                .and_then(|w| w.as_bool())
+                                .unwrap_or(false);
+                        }
                     } else {
                         child_node = self.parse_device_tree(value);
                     }
@@ -143,6 +149,7 @@ impl AcsConnection {
                         let mut root_node = DataNode {
                             value: "".to_string(),
                             value_type: "".to_string(),
+                            writable: false,
                             subnodes: HashMap::new(),
                         };
                         root_node.subnodes.insert("Device".to_string(), device_node);

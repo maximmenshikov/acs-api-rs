@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct DataNode {
     pub value: String,
     pub value_type: String,
+    pub writable: bool,
     pub subnodes: HashMap<String, DataNode>,
 }
 
@@ -17,6 +18,7 @@ impl DataNode {
         Self {
             value: "".to_string(),
             value_type: "".to_string(),
+            writable: false,
             subnodes: HashMap::new(),
         }
     }
