@@ -99,7 +99,8 @@ impl AcsConnection {
                             .map(String::from)
                             .unwrap_or("".to_string());
                         if sub_obj.contains_key("_writable") {
-                            child_node.writable = sub_obj.get("_writable")
+                            child_node.writable = sub_obj
+                                .get("_writable")
                                 .and_then(|w| w.as_bool())
                                 .unwrap_or(false);
                         }
