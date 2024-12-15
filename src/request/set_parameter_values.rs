@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct SetParameterValues {
     #[serde(default = "unset_str")]
     pub name: String,
-    #[serde(default = "unset_vec_parameter_value")]
+    #[serde(default = "unset_vec_parameter_value", rename = "parameterValues")]
     pub parameter_values: Vec<ParameterValue>,
 }
 
