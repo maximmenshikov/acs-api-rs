@@ -1,7 +1,7 @@
-use serde_json::Value;
-use serde::Serializer;
 use crate::util::accessor::*;
+use serde::Serializer;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 #[derive(Deserialize, PartialEq, Clone, Debug)]
 #[repr(C)]
@@ -41,21 +41,24 @@ impl Serialize for ParameterValue {
             "xsd:string" => {
                 let output = vec![
                     Value::String(self.parameter.clone()),
-                    Value::String(self.value.clone())];
+                    Value::String(self.value.clone()),
+                ];
                 output.serialize(serializer)
             }
             "xsd:boolean" => {
                 let parsed_value = self.value.parse::<bool>().unwrap_or(false);
                 let output = vec![
                     Value::String(self.parameter.clone()),
-                    Value::Bool(parsed_value)];
+                    Value::Bool(parsed_value),
+                ];
                 output.serialize(serializer)
             }
             "xsd:unsignedInt" => {
                 let parsed_value = self.value.parse::<u32>().unwrap_or(0);
                 let output = vec![
                     Value::String(self.parameter.clone()),
-                    Value::Number(parsed_value.into())];
+                    Value::Number(parsed_value.into()),
+                ];
                 output.serialize(serializer)
             }
             _ => {
