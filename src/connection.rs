@@ -87,10 +87,11 @@ impl AcsConnection {
 
                 if let Some(sub_obj) = value.as_object() {
                     if sub_obj.contains_key("_value") && sub_obj.contains_key("_type") {
-                        child_node.value = sub_obj["_value"]
-                            .as_str()
-                            .map(String::from)
-                            .unwrap_or("".to_string());
+                        child_node.value = match &sub_obj["_value"] {
+                            Value::String(s) => s.clone(),
+                            Value::Number(n) => n.to_string(),
+                            _ => "".to_string(),
+                        };
                         child_node.value_type = sub_obj["_type"]
                             .as_str()
                             .map(String::from)
