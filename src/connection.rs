@@ -102,7 +102,7 @@ impl AcsConnection {
                             child_node.writable = sub_obj
                                 .get("_writable")
                                 .and_then(|w| w.as_bool())
-                                .unwrap_or(false);
+                                .unwrap_or(true);
                         } else {
                             /* Should it be considered writable? */
                             child_node.writable = true;
