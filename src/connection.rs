@@ -102,10 +102,10 @@ impl AcsConnection {
                             child_node.writable = sub_obj
                                 .get("_writable")
                                 .and_then(|w| w.as_bool())
-                                .unwrap_or(true);
+                                .unwrap_or(false);
                         } else {
                             /* Should it be considered writable? */
-                            child_node.writable = true;
+                            child_node.writable = false;
                         }
                     } else {
                         child_node = self.parse_device_tree(value);
