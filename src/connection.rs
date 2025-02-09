@@ -103,6 +103,9 @@ impl AcsConnection {
                                 .get("_writable")
                                 .and_then(|w| w.as_bool())
                                 .unwrap_or(false);
+                        } else {
+                            /* Should it be considered writable? */
+                            child_node.writable = true;
                         }
                     } else {
                         child_node = self.parse_device_tree(value);
