@@ -332,13 +332,15 @@ impl AcsConnection {
         }
     }
 
-    pub fn upload_file(&self,
+    pub fn upload_file(
+        &self,
         name: &str,
         path: &str,
         file_type: &str,
         oui: &str,
         product_class: &str,
-        version: &str) -> Result<(), Box<dyn std::error::Error>> {
+        version: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         if !matches!(self.acs_type, AcsType::GenieAcs) {
             return Err(Box::from("Unknown ACS type"));
         }
@@ -359,11 +361,7 @@ impl AcsConnection {
         let file_bytes = std::fs::read(path)?;
 
         // Send request
-        let response = client
-            .put(&url)
-            .headers(headers)
-            .body(file_bytes)
-            .send()?;
+        let response = client.put(&url).headers(headers).body(file_bytes).send()?;
 
         if response.status().is_success() {
             return Ok(());
