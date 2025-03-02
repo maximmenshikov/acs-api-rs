@@ -3,10 +3,10 @@ use crate::data_node::*;
 use crate::device::*;
 use crate::parameter_value::*;
 use crate::request::add_delete_object::*;
+use crate::request::download_command::*;
 use crate::request::refresh_object::*;
 use crate::request::set_parameter_values::*;
 use crate::request::simple_command::*;
-use crate::request::download_command::*;
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::Value;
@@ -374,7 +374,11 @@ impl AcsConnection {
         }
     }
 
-    pub fn download(&self, device_id: String, filename: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn download(
+        &self,
+        device_id: String,
+        filename: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         if !matches!(self.acs_type, AcsType::GenieAcs) {
             return Err(Box::from("Unknown ACS type"));
         }
