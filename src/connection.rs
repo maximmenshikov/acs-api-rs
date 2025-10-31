@@ -11,6 +11,7 @@ use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::Value;
 use std::collections::HashMap;
+use urlencoding::encode;
 
 pub struct AcsConnection {
     pub addr: String,
@@ -23,6 +24,10 @@ impl AcsConnection {
             acs_type: acs_type,
             addr: addr,
         };
+    }
+
+    fn encode_device(&self, device_id: &str) -> String {
+        return encode(device_id).to_string();
     }
 
     pub fn list_devices(self: &Self) -> Result<Vec<AcsDevice>, Box<dyn std::error::Error>> {
@@ -64,7 +69,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+        let url = self.addr.clone() + "/devices/" +
+            &self.encode_device(&device_id) + "/tasks?connection_request";
 
         let req = SetParameterValues::new(parameter_values.clone());
         // Send a POST request
@@ -135,7 +141,7 @@ impl AcsConnection {
         // Define the URL
         let url = self.addr.clone()
             + "/devices?query=%7B%22_id%22%3A%22"
-            + &device_id
+            + &self.encode_device(&device_id)
             + "%22%7D&projection="
             + &parameter_names.join(",");
 
@@ -185,7 +191,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+        let url = self.addr.clone() + "/devices/" +
+            &self.encode_device(&device_id) + "/tasks?connection_request";
 
         let req = RefreshObject::new(object);
         // Send a POST request
@@ -209,7 +216,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+        let url = self.addr.clone() + "/devices/" +
+            &self.encode_device(&device_id) + "/tasks?connection_request";
 
         let req = SimpleCommand::new("reboot");
         // Send a POST request
@@ -233,7 +241,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+        let url = self.addr.clone() + "/devices/" +
+            &self.encode_device(&device_id) + "/tasks?connection_request";
 
         let req = SimpleCommand::new("factoryReset");
         // Send a POST request
@@ -262,7 +271,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+        let url = self.addr.clone() + "/devices/" +
+            &self.encode_device(&device_id) + "/tasks?connection_request";
 
         let req = AddDeleteObject::new(add, &object_name);
         // Send a POST request
@@ -286,7 +296,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id;
+        let url = self.addr.clone() + "/devices/" +
+            &self.encode_device(&device_id);
 
         // Send a DELETE request
         let response = client.delete(&url).send()?;
@@ -314,7 +325,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id + "/tags/" + &tag;
+        let url = self.addr.clone() + "/devices/" +
+            &self.encode_device(&device_id) + "/tags/" + &tag;
 
         // Send a POST/DELETE request
         let response = if add {
@@ -386,7 +398,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &device_id + "/tasks?connection_request";
+        let url = self.addr.clone() + "/devices/" +
+            &self.encode_device(&device_id) + "/tasks?connection_request";
 
         let req = DownloadCommand::new(&filename);
 
