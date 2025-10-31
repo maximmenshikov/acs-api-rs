@@ -69,8 +69,10 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" +
-            &self.encode_device(&device_id) + "/tasks?connection_request";
+        let url = self.addr.clone()
+            + "/devices/"
+            + &self.encode_device(&device_id)
+            + "/tasks?connection_request";
 
         let req = SetParameterValues::new(parameter_values.clone());
         // Send a POST request
@@ -191,8 +193,10 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" +
-            &self.encode_device(&device_id) + "/tasks?connection_request";
+        let url = self.addr.clone()
+            + "/devices/"
+            + &self.encode_device(&device_id)
+            + "/tasks?connection_request";
 
         let req = RefreshObject::new(object);
         // Send a POST request
@@ -216,8 +220,10 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" +
-            &self.encode_device(&device_id) + "/tasks?connection_request";
+        let url = self.addr.clone()
+            + "/devices/"
+            + &self.encode_device(&device_id)
+            + "/tasks?connection_request";
 
         let req = SimpleCommand::new("reboot");
         // Send a POST request
@@ -241,8 +247,10 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" +
-            &self.encode_device(&device_id) + "/tasks?connection_request";
+        let url = self.addr.clone()
+            + "/devices/"
+            + &self.encode_device(&device_id)
+            + "/tasks?connection_request";
 
         let req = SimpleCommand::new("factoryReset");
         // Send a POST request
@@ -271,8 +279,10 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" +
-            &self.encode_device(&device_id) + "/tasks?connection_request";
+        let url = self.addr.clone()
+            + "/devices/"
+            + &self.encode_device(&device_id)
+            + "/tasks?connection_request";
 
         let req = AddDeleteObject::new(add, &object_name);
         // Send a POST request
@@ -296,8 +306,7 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" +
-            &self.encode_device(&device_id);
+        let url = self.addr.clone() + "/devices/" + &self.encode_device(&device_id);
 
         // Send a DELETE request
         let response = client.delete(&url).send()?;
@@ -325,8 +334,8 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" +
-            &self.encode_device(&device_id) + "/tags/" + &tag;
+        let url =
+            self.addr.clone() + "/devices/" + &self.encode_device(&device_id) + "/tags/" + &tag;
 
         // Send a POST/DELETE request
         let response = if add {
@@ -398,8 +407,10 @@ impl AcsConnection {
         let client = Client::new();
 
         // Define the URL
-        let url = self.addr.clone() + "/devices/" +
-            &self.encode_device(&device_id) + "/tasks?connection_request";
+        let url = self.addr.clone()
+            + "/devices/"
+            + &self.encode_device(&device_id)
+            + "/tasks?connection_request";
 
         let req = DownloadCommand::new(&filename);
 
