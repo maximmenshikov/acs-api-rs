@@ -290,6 +290,8 @@ impl AcsConnection {
         // Send a POST request
         let response = client.post(&url).json(&req).send()?;
 
+        println!("Response: {:?}", response);
+
         if response.status().is_success() {
             return Ok(());
         } else {
