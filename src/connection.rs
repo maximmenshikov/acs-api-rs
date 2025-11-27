@@ -285,6 +285,8 @@ impl AcsConnection {
             + "/tasks?connection_request";
 
         let req = AddDeleteObject::new(add, &object_name);
+        eprintln!("Request: {}", serde_json::to_string(&req).unwrap());
+
         // Send a POST request
         let response = client.post(&url).json(&req).send()?;
 
