@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct RefreshObject {
     #[serde(default = "unset_str")]
     pub name: String,
-    #[serde(default = "unset_str")]
+    #[serde(default = "unset_str", rename = "objectName")]
     pub object_name: String,
 }
 
