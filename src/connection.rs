@@ -76,10 +76,33 @@ impl AcsConnection {
             + &self.encode_device(&device_id)
             + "/tasks?connection_request";
 
+        if self.debug_log {
+            eprintln!("URL: {}", url);
+        }
         let req = SetParameterValues::new(parameter_values.clone());
+        if self.debug_log {
+            eprintln!("Request: {}", serde_json::to_string(&req).unwrap());
+        }
+
         // Send a POST request
-        eprintln!("Request: {}", serde_json::to_string(&req).unwrap());
-        let response = client.post(&url).json(&req).send()?;
+        let response = client.post(&url).json(&req).send();
+
+        match response {
+            Ok(ref _resp) => {
+            }
+            Err(err) => {
+                if self.debug_log {
+                    eprintln!("HTTP error while sending request: {:?}", err);
+                }
+                return Err(Box::from(err))
+            }
+        };
+
+        let response = response.unwrap();
+        if self.debug_log {
+            eprintln!("Response: {:?}", response);
+            eprintln!("Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
