@@ -295,7 +295,19 @@ impl AcsConnection {
         }
 
         // Send a POST request
-        let response = client.post(&url).json(&req).send()?;
+        let response = client.post(&url).json(&req).send();
+        match response {
+            Ok(ref _resp) => {
+            }
+            Err(err) => {
+                if self.debug_log {
+                    eprintln!("HTTP error while sending request: {:?}", err);
+                }
+                return Err(Box::from(err))
+            }
+        };
+
+        let response = response.unwrap();
         if self.debug_log {
             eprintln!("Response: {:?}", response);
             eprintln!("Status: {:?}", response.status());
