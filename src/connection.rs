@@ -16,6 +16,7 @@ use urlencoding::encode;
 pub struct AcsConnection {
     pub addr: String,
     pub acs_type: AcsType,
+    pub debug_log: bool,
 }
 
 impl AcsConnection {
@@ -23,6 +24,7 @@ impl AcsConnection {
         return Self {
             acs_type: acs_type,
             addr: addr,
+            debug_log: false,
         };
     }
 
@@ -284,13 +286,20 @@ impl AcsConnection {
             + &self.encode_device(&device_id)
             + "/tasks?connection_request";
 
+        if self.debug_log {
+            eprintln!("URL: {}", url);
+        }
         let req = AddDeleteObject::new(add, &object_name);
-        eprintln!("Request: {}", serde_json::to_string(&req).unwrap());
+        if self.debug_log {
+            eprintln!("Request: {}", serde_json::to_string(&req).unwrap());
+        }
 
         // Send a POST request
         let response = client.post(&url).json(&req).send()?;
-
-        println!("Response: {:?}", response);
+        if self.debug_log {
+            eprintln!("Response: {:?}", response);
+            eprintln!("Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
