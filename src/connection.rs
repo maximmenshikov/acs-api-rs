@@ -11,20 +11,31 @@ use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::Value;
 use std::collections::HashMap;
+use std::time::Duration;
 use urlencoding::encode;
 
 pub struct AcsConnection {
     pub addr: String,
     pub acs_type: AcsType,
     pub debug_log: bool,
+    client: Client,
 }
 
 impl AcsConnection {
     pub fn new(acs_type: AcsType, addr: String) -> Self {
+        let client = Client::builder()
+            .timeout(Duration::from_secs(30))
+            .connect_timeout(Duration::from_secs(10))
+            .pool_idle_timeout(Duration::from_secs(90))
+            .pool_max_idle_per_host(10)
+            .build()
+            .expect("Failed to build HTTP client");
+
         return Self {
-            acs_type: acs_type,
-            addr: addr,
+            acs_type,
+            addr,
             debug_log: false,
+            client,
         };
     }
 
@@ -37,13 +48,11 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone() + "/devices";
+        let url = format!("{}/devices", self.addr);
 
         // Send a GET request
-        let response = client.get(&url).send()?;
+        let response = self.client.get(&url).send()?;
 
         // Check if the request was successful
         if response.status().is_success() {
@@ -68,13 +77,12 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone()
-            + "/devices/"
-            + &self.encode_device(&device_id)
-            + "/tasks?connection_request";
+        let url = format!(
+            "{}/devices/{}/tasks?connection_request",
+            self.addr,
+            self.encode_device(&device_id)
+        );
 
         if self.debug_log {
             eprintln!("URL: {}", url);
@@ -85,7 +93,7 @@ impl AcsConnection {
         }
 
         // Send a POST request
-        let response = client.post(&url).json(&req).send();
+        let response = self.client.post(&url).json(&req).send();
 
         match response {
             Ok(ref _resp) => {
@@ -163,17 +171,16 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone()
-            + "/devices?query=%7B%22_id%22%3A%22"
-            + &self.encode_device(&device_id)
-            + "%22%7D&projection="
-            + &parameter_names.join(",");
+        let url = format!(
+            "{}/devices?query=%7B%22_id%22%3A%22{}%22%7D&projection={}",
+            self.addr,
+            self.encode_device(&device_id),
+            parameter_names.join(",")
+        );
 
         // Send a GET request
-        let response = client.get(&url).send()?;
+        let response = self.client.get(&url).send()?;
 
         if response.status().is_success() {
             let s = response.text()?.clone();
@@ -215,17 +222,16 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone()
-            + "/devices/"
-            + &self.encode_device(&device_id)
-            + "/tasks?connection_request";
+        let url = format!(
+            "{}/devices/{}/tasks?connection_request",
+            self.addr,
+            self.encode_device(&device_id)
+        );
 
         let req = RefreshObject::new(object);
         // Send a POST request
-        let response = client.post(&url).json(&req).send()?;
+        let response = self.client.post(&url).json(&req).send()?;
 
         if response.status().is_success() {
             return Ok(());
@@ -242,17 +248,16 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone()
-            + "/devices/"
-            + &self.encode_device(&device_id)
-            + "/tasks?connection_request";
+        let url = format!(
+            "{}/devices/{}/tasks?connection_request",
+            self.addr,
+            self.encode_device(&device_id)
+        );
 
         let req = SimpleCommand::new("reboot");
         // Send a POST request
-        let response = client.post(&url).json(&req).send()?;
+        let response = self.client.post(&url).json(&req).send()?;
 
         if response.status().is_success() {
             return Ok(());
@@ -269,17 +274,16 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone()
-            + "/devices/"
-            + &self.encode_device(&device_id)
-            + "/tasks?connection_request";
+        let url = format!(
+            "{}/devices/{}/tasks?connection_request",
+            self.addr,
+            self.encode_device(&device_id)
+        );
 
         let req = SimpleCommand::new("factoryReset");
         // Send a POST request
-        let response = client.post(&url).json(&req).send()?;
+        let response = self.client.post(&url).json(&req).send()?;
 
         if response.status().is_success() {
             return Ok(());
@@ -301,13 +305,12 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone()
-            + "/devices/"
-            + &self.encode_device(&device_id)
-            + "/tasks?connection_request";
+        let url = format!(
+            "{}/devices/{}/tasks?connection_request",
+            self.addr,
+            self.encode_device(&device_id)
+        );
 
         if self.debug_log {
             eprintln!("URL: {}", url);
@@ -318,7 +321,7 @@ impl AcsConnection {
         }
 
         // Send a POST request
-        let response = client.post(&url).json(&req).send();
+        let response = self.client.post(&url).json(&req).send();
         match response {
             Ok(ref _resp) => {
             }
@@ -351,13 +354,11 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone() + "/devices/" + &self.encode_device(&device_id);
+        let url = format!("{}/devices/{}", self.addr, self.encode_device(&device_id));
 
         // Send a DELETE request
-        let response = client.delete(&url).send()?;
+        let response = self.client.delete(&url).send()?;
 
         if response.status().is_success() {
             return Ok(());
@@ -379,17 +380,19 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url =
-            self.addr.clone() + "/devices/" + &self.encode_device(&device_id) + "/tags/" + &tag;
+        let url = format!(
+            "{}/devices/{}/tags/{}",
+            self.addr,
+            self.encode_device(&device_id),
+            tag
+        );
 
         // Send a POST/DELETE request
         let response = if add {
-            client.post(&url).send()?
+            self.client.post(&url).send()?
         } else {
-            client.delete(&url).send()?
+            self.client.delete(&url).send()?
         };
 
         if response.status().is_success() {
@@ -415,10 +418,8 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone() + "/files/" + &name;
+        let url = format!("{}/files/{}", self.addr, name);
 
         // Create set of headers
         let mut headers = HeaderMap::new();
@@ -431,7 +432,7 @@ impl AcsConnection {
         let file_bytes = std::fs::read(path)?;
 
         // Send request
-        let response = client.put(&url).headers(headers).body(file_bytes).send()?;
+        let response = self.client.put(&url).headers(headers).body(file_bytes).send()?;
 
         if response.status().is_success() {
             return Ok(());
@@ -452,18 +453,17 @@ impl AcsConnection {
             return Err(Box::from("Unknown ACS type"));
         }
 
-        let client = Client::new();
-
         // Define the URL
-        let url = self.addr.clone()
-            + "/devices/"
-            + &self.encode_device(&device_id)
-            + "/tasks?connection_request";
+        let url = format!(
+            "{}/devices/{}/tasks?connection_request",
+            self.addr,
+            self.encode_device(&device_id)
+        );
 
         let req = DownloadCommand::new(&filename);
 
         // Send a POST request
-        let response = client.post(&url).json(&req).send()?;
+        let response = self.client.post(&url).json(&req).send()?;
 
         if response.status().is_success() {
             return Ok(());
