@@ -96,13 +96,12 @@ impl AcsConnection {
         let response = self.client.post(&url).json(&req).send();
 
         match response {
-            Ok(ref _resp) => {
-            }
+            Ok(ref _resp) => {}
             Err(err) => {
                 if self.debug_log {
                     eprintln!("HTTP error while sending request: {:?}", err);
                 }
-                return Err(Box::from(err))
+                return Err(Box::from(err));
             }
         };
 
@@ -323,13 +322,12 @@ impl AcsConnection {
         // Send a POST request
         let response = self.client.post(&url).json(&req).send();
         match response {
-            Ok(ref _resp) => {
-            }
+            Ok(ref _resp) => {}
             Err(err) => {
                 if self.debug_log {
                     eprintln!("HTTP error while sending request: {:?}", err);
                 }
-                return Err(Box::from(err))
+                return Err(Box::from(err));
             }
         };
 
@@ -432,7 +430,12 @@ impl AcsConnection {
         let file_bytes = std::fs::read(path)?;
 
         // Send request
-        let response = self.client.put(&url).headers(headers).body(file_bytes).send()?;
+        let response = self
+            .client
+            .put(&url)
+            .headers(headers)
+            .body(file_bytes)
+            .send()?;
 
         if response.status().is_success() {
             return Ok(());
