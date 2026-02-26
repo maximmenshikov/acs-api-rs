@@ -429,6 +429,10 @@ impl AcsConnection {
         // Read file
         let file_bytes = std::fs::read(path)?;
 
+        if self.debug_log {
+            eprintln!("URL: {}", url);
+            eprintln!("File bytes: {:?}", file_bytes.len());
+        }
         // Send request
         let response = self
             .client
@@ -436,6 +440,10 @@ impl AcsConnection {
             .headers(headers)
             .body(file_bytes)
             .send()?;
+        if self.debug_log {
+            eprintln!("Response: {:?}", response);
+            eprintln!("Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
