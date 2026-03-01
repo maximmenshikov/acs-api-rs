@@ -473,8 +473,17 @@ impl AcsConnection {
 
         let req = DownloadCommand::new(&filename);
 
+        if self.debug_log {
+            eprintln!("URL: {}", url);
+            eprintln!("Request: {:?}", serde_json::to_string(&req).unwrap());
+        }
+
         // Send a POST request
         let response = self.client.post(&url).json(&req).send()?;
+        if self.debug_log {
+            eprintln!("Response: {:?}", response);
+            eprintln!("Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
