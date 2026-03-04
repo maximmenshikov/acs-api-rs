@@ -455,6 +455,39 @@ impl AcsConnection {
         }
     }
 
+    pub fn delete_file(
+        &self,
+        name: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
+        // Define the URL
+        let url = format!("{}/files/{}", self.addr, name);
+
+        if self.debug_log {
+            eprintln!("URL: {}", url);
+        }
+
+        // Send request
+        let response = self.client.delete(&url).send()?;
+
+        if self.debug_log {
+            eprintln!("Response: {:?}", response);
+            eprintln!("Status: {:?}", response.status());
+        }
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!(
+                "Response indicates failure: {}",
+                response.status()
+            )));
+        }
+    }
+
     pub fn download(
         &self,
         device_id: String,
