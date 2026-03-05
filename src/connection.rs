@@ -18,6 +18,9 @@ pub struct AcsConnection {
     pub addr: String,
     pub acs_type: AcsType,
     pub debug_log: bool,
+    pub list_debug_log: bool,
+    pub get_debug_log: bool,
+    pub parse_debug_log: bool,
     client: Client,
 }
 
@@ -35,6 +38,9 @@ impl AcsConnection {
             acs_type,
             addr,
             debug_log: false,
+            list_debug_log: false,
+            get_debug_log: false,
+            parse_debug_log: false,
             client,
         };
     }
@@ -51,14 +57,14 @@ impl AcsConnection {
         // Define the URL
         let url = format!("{}/devices", self.addr);
 
-        if self.debug_log {
+        if self.list_debug_log {
             eprintln!("[list_devices] URL: {}", url);
         }
 
         // Send a GET request
         let response = self.client.get(&url).send()?;
 
-        if self.debug_log {
+        if self.list_debug_log {
             eprintln!("[list_devices] Status: {:?}", response.status());
         }
 
@@ -66,7 +72,7 @@ impl AcsConnection {
         if response.status().is_success() {
             // Parse the JSON response
             let s = response.text()?.clone();
-            if self.debug_log {
+            if self.list_debug_log {
                 eprintln!("[list_devices] Response body: {}", s);
             }
             let val: Vec<AcsDevice> = serde_json::from_str(&s)?;
@@ -96,11 +102,11 @@ impl AcsConnection {
         );
 
         if self.debug_log {
-            eprintln!("URL: {}", url);
+            eprintln!("[set_parameter_values] URL: {}", url);
         }
         let req = SetParameterValues::new(parameter_values.clone());
         if self.debug_log {
-            eprintln!("Request: {}", serde_json::to_string(&req).unwrap());
+            eprintln!("[set_parameter_values] Request: {}", serde_json::to_string(&req).unwrap());
         }
 
         // Send a POST request
@@ -110,7 +116,7 @@ impl AcsConnection {
             Ok(ref _resp) => {}
             Err(err) => {
                 if self.debug_log {
-                    eprintln!("HTTP error while sending request: {:?}", err);
+                    eprintln!("[set_parameter_values] HTTP error while sending request: {:?}", err);
                 }
                 return Err(Box::from(err));
             }
@@ -118,8 +124,7 @@ impl AcsConnection {
 
         let response = response.unwrap();
         if self.debug_log {
-            eprintln!("Response: {:?}", response);
-            eprintln!("Status: {:?}", response.status());
+            eprintln!("[set_parameter_values] Status: {:?}", response.status());
         }
 
         if response.status().is_success() {
@@ -135,13 +140,13 @@ impl AcsConnection {
     fn parse_device_tree(&self, json: &Value) -> DataNode {
         let mut root = DataNode::new();
 
-        if self.debug_log {
+        if self.parse_debug_log {
             eprintln!("[parse_device_tree] Parsing node: {}", json);
         }
 
         if let Some(obj) = json.as_object() {
             for (key, value) in obj {
-                if self.debug_log {
+                if self.parse_debug_log {
                     eprintln!("[parse_device_tree] Processing key: {}", key);
                 }
                 let mut child_node = DataNode::new();
@@ -158,7 +163,7 @@ impl AcsConnection {
                             .as_str()
                             .map(String::from)
                             .unwrap_or("".to_string());
-                        if self.debug_log {
+                        if self.parse_debug_log {
                             eprintln!(
                                 "[parse_device_tree] key={} value={} type={} writable={:?}",
                                 key,
@@ -205,7 +210,7 @@ impl AcsConnection {
             parameter_names.join(",")
         );
 
-        if self.debug_log {
+        if self.get_debug_log {
             eprintln!("[get_parameter_values] URL: {}", url);
             eprintln!("[get_parameter_values] device_id: {}", device_id);
             eprintln!("[get_parameter_values] parameters: {:?}", parameter_names);
@@ -214,13 +219,13 @@ impl AcsConnection {
         // Send a GET request
         let response = self.client.get(&url).send()?;
 
-        if self.debug_log {
+        if self.get_debug_log {
             eprintln!("[get_parameter_values] Status: {:?}", response.status());
         }
 
         if response.status().is_success() {
             let s = response.text()?.clone();
-            if self.debug_log {
+            if self.get_debug_log {
                 eprintln!("[get_parameter_values] Response body: {}", s);
             }
             let json: Value = serde_json::from_str(&s)?;
@@ -382,11 +387,11 @@ impl AcsConnection {
         );
 
         if self.debug_log {
-            eprintln!("URL: {}", url);
+            eprintln!("[add_del_object] URL: {}", url);
         }
         let req = AddDeleteObject::new(add, &object_name);
         if self.debug_log {
-            eprintln!("Request: {}", serde_json::to_string(&req).unwrap());
+            eprintln!("[add_del_object] Request: {}", serde_json::to_string(&req).unwrap());
         }
 
         // Send a POST request
@@ -395,7 +400,7 @@ impl AcsConnection {
             Ok(ref _resp) => {}
             Err(err) => {
                 if self.debug_log {
-                    eprintln!("HTTP error while sending request: {:?}", err);
+                    eprintln!("[add_del_object] HTTP error while sending request: {:?}", err);
                 }
                 return Err(Box::from(err));
             }
@@ -403,8 +408,7 @@ impl AcsConnection {
 
         let response = response.unwrap();
         if self.debug_log {
-            eprintln!("Response: {:?}", response);
-            eprintln!("Status: {:?}", response.status());
+            eprintln!("[add_del_object] Status: {:?}", response.status());
         }
 
         if response.status().is_success() {
@@ -517,8 +521,8 @@ impl AcsConnection {
         let file_bytes = std::fs::read(path)?;
 
         if self.debug_log {
-            eprintln!("URL: {}", url);
-            eprintln!("File bytes: {:?}", file_bytes.len());
+            eprintln!("[upload_file] URL: {}", url);
+            eprintln!("[upload_file] File bytes: {:?}", file_bytes.len());
         }
         // Send request
         let response = self
@@ -528,8 +532,7 @@ impl AcsConnection {
             .body(file_bytes)
             .send()?;
         if self.debug_log {
-            eprintln!("Response: {:?}", response);
-            eprintln!("Status: {:?}", response.status());
+            eprintln!("[upload_file] Status: {:?}", response.status());
         }
 
         if response.status().is_success() {
@@ -554,15 +557,14 @@ impl AcsConnection {
         let url = format!("{}/files/{}", self.addr, name);
 
         if self.debug_log {
-            eprintln!("URL: {}", url);
+            eprintln!("[delete_file] URL: {}", url);
         }
 
         // Send request
         let response = self.client.delete(&url).send()?;
 
         if self.debug_log {
-            eprintln!("Response: {:?}", response);
-            eprintln!("Status: {:?}", response.status());
+            eprintln!("[delete_file] Status: {:?}", response.status());
         }
 
         if response.status().is_success() {
@@ -594,15 +596,14 @@ impl AcsConnection {
         let req = DownloadCommand::new(&filename);
 
         if self.debug_log {
-            eprintln!("URL: {}", url);
-            eprintln!("Request: {:?}", serde_json::to_string(&req).unwrap());
+            eprintln!("[download] URL: {}", url);
+            eprintln!("[download] Request: {}", serde_json::to_string(&req).unwrap());
         }
 
         // Send a POST request
         let response = self.client.post(&url).json(&req).send()?;
         if self.debug_log {
-            eprintln!("Response: {:?}", response);
-            eprintln!("Status: {:?}", response.status());
+            eprintln!("[download] Status: {:?}", response.status());
         }
 
         if response.status().is_success() {
