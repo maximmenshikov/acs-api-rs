@@ -51,13 +51,24 @@ impl AcsConnection {
         // Define the URL
         let url = format!("{}/devices", self.addr);
 
+        if self.debug_log {
+            eprintln!("[list_devices] URL: {}", url);
+        }
+
         // Send a GET request
         let response = self.client.get(&url).send()?;
+
+        if self.debug_log {
+            eprintln!("[list_devices] Status: {:?}", response.status());
+        }
 
         // Check if the request was successful
         if response.status().is_success() {
             // Parse the JSON response
             let s = response.text()?.clone();
+            if self.debug_log {
+                eprintln!("[list_devices] Response body: {}", s);
+            }
             let val: Vec<AcsDevice> = serde_json::from_str(&s)?;
             return Ok(val);
         } else {
@@ -124,8 +135,15 @@ impl AcsConnection {
     fn parse_device_tree(&self, json: &Value) -> DataNode {
         let mut root = DataNode::new();
 
+        if self.debug_log {
+            eprintln!("[parse_device_tree] Parsing node: {}", json);
+        }
+
         if let Some(obj) = json.as_object() {
             for (key, value) in obj {
+                if self.debug_log {
+                    eprintln!("[parse_device_tree] Processing key: {}", key);
+                }
                 let mut child_node = DataNode::new();
 
                 if let Some(sub_obj) = value.as_object() {
@@ -140,6 +158,15 @@ impl AcsConnection {
                             .as_str()
                             .map(String::from)
                             .unwrap_or("".to_string());
+                        if self.debug_log {
+                            eprintln!(
+                                "[parse_device_tree] key={} value={} type={} writable={:?}",
+                                key,
+                                child_node.value,
+                                child_node.value_type,
+                                sub_obj.get("_writable")
+                            );
+                        }
                         if sub_obj.contains_key("_writable") {
                             child_node.writable = sub_obj
                                 .get("_writable")
@@ -178,11 +205,24 @@ impl AcsConnection {
             parameter_names.join(",")
         );
 
+        if self.debug_log {
+            eprintln!("[get_parameter_values] URL: {}", url);
+            eprintln!("[get_parameter_values] device_id: {}", device_id);
+            eprintln!("[get_parameter_values] parameters: {:?}", parameter_names);
+        }
+
         // Send a GET request
         let response = self.client.get(&url).send()?;
 
+        if self.debug_log {
+            eprintln!("[get_parameter_values] Status: {:?}", response.status());
+        }
+
         if response.status().is_success() {
             let s = response.text()?.clone();
+            if self.debug_log {
+                eprintln!("[get_parameter_values] Response body: {}", s);
+            }
             let json: Value = serde_json::from_str(&s)?;
             let root_device_array = json.as_array().unwrap();
             if root_device_array.len() > 0 {
@@ -229,8 +269,18 @@ impl AcsConnection {
         );
 
         let req = RefreshObject::new(object);
+
+        if self.debug_log {
+            eprintln!("[refresh_object] URL: {}", url);
+            eprintln!("[refresh_object] Request: {}", serde_json::to_string(&req).unwrap());
+        }
+
         // Send a POST request
         let response = self.client.post(&url).json(&req).send()?;
+
+        if self.debug_log {
+            eprintln!("[refresh_object] Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
@@ -255,8 +305,18 @@ impl AcsConnection {
         );
 
         let req = SimpleCommand::new("reboot");
+
+        if self.debug_log {
+            eprintln!("[reboot] URL: {}", url);
+            eprintln!("[reboot] Request: {}", serde_json::to_string(&req).unwrap());
+        }
+
         // Send a POST request
         let response = self.client.post(&url).json(&req).send()?;
+
+        if self.debug_log {
+            eprintln!("[reboot] Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
@@ -281,8 +341,18 @@ impl AcsConnection {
         );
 
         let req = SimpleCommand::new("factoryReset");
+
+        if self.debug_log {
+            eprintln!("[factory_reset] URL: {}", url);
+            eprintln!("[factory_reset] Request: {}", serde_json::to_string(&req).unwrap());
+        }
+
         // Send a POST request
         let response = self.client.post(&url).json(&req).send()?;
+
+        if self.debug_log {
+            eprintln!("[factory_reset] Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
@@ -355,8 +425,16 @@ impl AcsConnection {
         // Define the URL
         let url = format!("{}/devices/{}", self.addr, self.encode_device(&device_id));
 
+        if self.debug_log {
+            eprintln!("[del_device] URL: {}", url);
+        }
+
         // Send a DELETE request
         let response = self.client.delete(&url).send()?;
+
+        if self.debug_log {
+            eprintln!("[del_device] Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
@@ -386,12 +464,21 @@ impl AcsConnection {
             tag
         );
 
+        if self.debug_log {
+            eprintln!("[add_del_tag] URL: {}", url);
+            eprintln!("[add_del_tag] add={} tag={}", add, tag);
+        }
+
         // Send a POST/DELETE request
         let response = if add {
             self.client.post(&url).send()?
         } else {
             self.client.delete(&url).send()?
         };
+
+        if self.debug_log {
+            eprintln!("[add_del_tag] Status: {:?}", response.status());
+        }
 
         if response.status().is_success() {
             return Ok(());
