@@ -5,8 +5,6 @@ fn unset_vec_vec_str() -> Vec<Vec<String>> {
     Vec::new()
 }
 
-
-
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[repr(C)]
 pub struct AcsDeviceId {

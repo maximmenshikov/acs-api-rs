@@ -106,7 +106,10 @@ impl AcsConnection {
         }
         let req = SetParameterValues::new(parameter_values.clone());
         if self.debug_log {
-            eprintln!("[set_parameter_values] Request: {}", serde_json::to_string(&req).unwrap());
+            eprintln!(
+                "[set_parameter_values] Request: {}",
+                serde_json::to_string(&req).unwrap()
+            );
         }
 
         // Send a POST request
@@ -116,7 +119,10 @@ impl AcsConnection {
             Ok(ref _resp) => {}
             Err(err) => {
                 if self.debug_log {
-                    eprintln!("[set_parameter_values] HTTP error while sending request: {:?}", err);
+                    eprintln!(
+                        "[set_parameter_values] HTTP error while sending request: {:?}",
+                        err
+                    );
                 }
                 return Err(Box::from(err));
             }
@@ -277,7 +283,10 @@ impl AcsConnection {
 
         if self.debug_log {
             eprintln!("[refresh_object] URL: {}", url);
-            eprintln!("[refresh_object] Request: {}", serde_json::to_string(&req).unwrap());
+            eprintln!(
+                "[refresh_object] Request: {}",
+                serde_json::to_string(&req).unwrap()
+            );
         }
 
         // Send a POST request
@@ -349,7 +358,10 @@ impl AcsConnection {
 
         if self.debug_log {
             eprintln!("[factory_reset] URL: {}", url);
-            eprintln!("[factory_reset] Request: {}", serde_json::to_string(&req).unwrap());
+            eprintln!(
+                "[factory_reset] Request: {}",
+                serde_json::to_string(&req).unwrap()
+            );
         }
 
         // Send a POST request
@@ -391,7 +403,10 @@ impl AcsConnection {
         }
         let req = AddDeleteObject::new(add, &object_name);
         if self.debug_log {
-            eprintln!("[add_del_object] Request: {}", serde_json::to_string(&req).unwrap());
+            eprintln!(
+                "[add_del_object] Request: {}",
+                serde_json::to_string(&req).unwrap()
+            );
         }
 
         // Send a POST request
@@ -400,7 +415,10 @@ impl AcsConnection {
             Ok(ref _resp) => {}
             Err(err) => {
                 if self.debug_log {
-                    eprintln!("[add_del_object] HTTP error while sending request: {:?}", err);
+                    eprintln!(
+                        "[add_del_object] HTTP error while sending request: {:?}",
+                        err
+                    );
                 }
                 return Err(Box::from(err));
             }
@@ -545,10 +563,7 @@ impl AcsConnection {
         }
     }
 
-    pub fn delete_file(
-        &self,
-        name: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn delete_file(&self, name: &str) -> Result<(), Box<dyn std::error::Error>> {
         if !matches!(self.acs_type, AcsType::GenieAcs) {
             return Err(Box::from("Unknown ACS type"));
         }
@@ -597,7 +612,10 @@ impl AcsConnection {
 
         if self.debug_log {
             eprintln!("[download] URL: {}", url);
-            eprintln!("[download] Request: {}", serde_json::to_string(&req).unwrap());
+            eprintln!(
+                "[download] Request: {}",
+                serde_json::to_string(&req).unwrap()
+            );
         }
 
         // Send a POST request
@@ -616,10 +634,7 @@ impl AcsConnection {
         }
     }
 
-    pub fn list_tasks(
-        &self,
-        device_id: &str,
-    ) -> Result<Vec<AcsTask>, Box<dyn std::error::Error>> {
+    pub fn list_tasks(&self, device_id: &str) -> Result<Vec<AcsTask>, Box<dyn std::error::Error>> {
         if !matches!(self.acs_type, AcsType::GenieAcs) {
             return Err(Box::from("Unknown ACS type"));
         }
@@ -656,10 +671,7 @@ impl AcsConnection {
         Ok(tasks)
     }
 
-    pub fn delete_task(
-        &self,
-        task_id: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn delete_task(&self, task_id: &str) -> Result<(), Box<dyn std::error::Error>> {
         if !matches!(self.acs_type, AcsType::GenieAcs) {
             return Err(Box::from("Unknown ACS type"));
         }
