@@ -615,4 +615,74 @@ impl AcsConnection {
             )));
         }
     }
+
+    pub fn list_tasks(
+        &self,
+        device_id: &str,
+    ) -> Result<Vec<AcsTask>, Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
+        let url = format!(
+            "{}/tasks?query={{\"device\":\"{}\"}}",
+            self.addr,
+            self.encode_device(device_id)
+        );
+
+        if self.debug_log {
+            eprintln!("[list_tasks] URL: {}", url);
+        }
+
+        let response = self.client.get(&url).send()?;
+
+        if self.debug_log {
+            eprintln!("[list_tasks] Status: {:?}", response.status());
+        }
+
+        if !response.status().is_success() {
+            return Err(Box::from(format!(
+                "Response indicates failure: {}",
+                response.status()
+            )));
+        }
+
+        let tasks: Vec<AcsTask> = response.json()?;
+
+        if self.debug_log {
+            eprintln!("[list_tasks] Got {} task(s)", tasks.len());
+        }
+
+        Ok(tasks)
+    }
+
+    pub fn delete_task(
+        &self,
+        task_id: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        if !matches!(self.acs_type, AcsType::GenieAcs) {
+            return Err(Box::from("Unknown ACS type"));
+        }
+
+        let url = format!("{}/tasks/{}", self.addr, task_id);
+
+        if self.debug_log {
+            eprintln!("[delete_task] URL: {}", url);
+        }
+
+        let response = self.client.delete(&url).send()?;
+
+        if self.debug_log {
+            eprintln!("[delete_task] Status: {:?}", response.status());
+        }
+
+        if response.status().is_success() {
+            return Ok(());
+        } else {
+            return Err(Box::from(format!(
+                "Response indicates failure: {}",
+                response.status()
+            )));
+        }
+    }
 }
